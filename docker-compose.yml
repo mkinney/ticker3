@@ -1,13 +1,13 @@
 version: '3.3'
 services:
   data_generator:
-    build: ./data_generator
+    image: ethfinance/ticker3:data_generator
     env_file:
       - ./settings/data_generator.secret
     ports:
-      - 127.0.0.1:80:80
+      - 127.0.0.1:8081:80
   image_generator:
-    build: ./image_generator
+    image: ethfinance/ticker3:image_generator
     depends_on:
       - data_generator
     env_file:
@@ -16,7 +16,7 @@ services:
       - ./data:/data
     user: "0"
   reddit_uploader:
-    build: ./reddit_uploader
+    image: ethfinance/ticker3:reddit_uploader
     env_file:
       - ./settings/reddit_uploader.secret
     volumes:
