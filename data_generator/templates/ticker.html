@@ -1,0 +1,58 @@
+<html>
+    <head>
+        <style>
+            body {margin: 0;}
+            .banner {
+                height:208px;
+            }
+            .banner-bg {
+                background-image: url("/static/img/banner.jpg");
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;
+            }
+            ul {
+                padding: 0;
+                margin: 0;
+                display: flex;
+                text-align: center;
+            }   
+            ul li {
+                list-style-type:none;
+                padding:2px;
+                width:100%;
+                font-family: Calibri, sans-serif;
+                font-size: 12px;
+                font-weight: bold;
+                -webkit-font-smoothing: antialiased;
+            }
+            ul li img {
+                height:12px;
+            }
+            .upper-ticker {
+                color: black;
+            }
+            .upper-ticker-bg {
+                background-color: rgba(255,255,255,.5);
+            }
+            .lower-ticker {
+                color: white;
+            }
+            .lower-ticker-bg {
+                background-color: rgba(0,0,0,.5);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="banner {% if request.query_params['style'] %} banner-bg {% endif %}">
+            <ul class="ticker upper-ticker {% if request.query_params['style'] %} upper-ticker-bg {% endif %}">
+                <li>Vol {{ data.vol }}</li>
+                <li>Supply {{ data.supply }}</li>
+                {% for key, value in data.fiat.items() %}<li><img src="/static/img/flags/{{ key[:2]|lower }}.svg"  /> {{ key|safe}} {{ value }}</li>{% endfor %}
+            </ul>
+            <ul class="ticker lower-ticker {% if request.query_params['style'] %} lower-ticker-bg {% endif %}">
+                {% for key, value in data.erc20.items() %}<li><img src="/static/img/crypto/{{ key|lower }}.svg"/> {{ key }} ${{ value }}</li>{% endfor %}
+            </ul>
+        </div>
+    </body>
+</html>

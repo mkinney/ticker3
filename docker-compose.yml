@@ -1,0 +1,23 @@
+version: '3.3'
+services:
+  data_generator:
+    build: ./data_generator
+    env_file:
+      - ./settings/data_generator.secret
+    ports:
+      - 127.0.0.1:80:80
+  image_generator:
+    build: ./image_generator
+    depends_on:
+      - data_generator
+    env_file:
+      - ./settings/image_generator.secret
+    volumes:
+      - ./data:/data
+    user: "0"
+  reddit_uploader:
+    build: ./reddit_uploader
+    env_file:
+      - ./settings/reddit_uploader.secret
+    volumes:
+      - ./data:/data
