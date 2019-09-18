@@ -20,12 +20,13 @@ logging.basicConfig(
 
 # Configuration from environment variables or '.env' file.
 config = Config(".env")
+DEBUG = config("DEBUG")
 FIAT = config("FIAT").split(",")
 ERC20 = config("ERC20").split(",")
 OER = config("OER")
 CMC = config("CMC")
 
-app = Starlette(debug=True)
+app = Starlette(debug=DEBUG)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
