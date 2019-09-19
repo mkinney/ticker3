@@ -3,6 +3,7 @@ import os
 
 import backoff
 import praw
+import prawcore
 import watchgod
 
 logging.getLogger("backoff").addHandler(logging.StreamHandler())
@@ -44,7 +45,7 @@ class RedditUploader:
 
     @backoff.on_exception(
         backoff.expo,
-        praw.exceptions.APIException,
+        (praw.exceptions.APIException, prawcore.exceptions.ServerError),
         max_time=240,
         jitter=backoff.full_jitter,
     )
@@ -62,16 +63,18 @@ class RedditUploader:
             dict -- Contains a link to the uploaded image under the key img_src.
         
         Raises:
-            praw.exceptionns.APIException - If any Reddit client or server error.
+            praw.exceptionns.APIException - If any Reddit client error.
+            prawcore.exceptions.ServerError - If any Reddit server error.
             prawcore.TooLarge - If image file is over 300kb
         """
-        log.info(f"Uploading CSS image (old reddit) {image_name}")
+        log.debug(f"Uploading CSS image (old reddit) {image_name}")
         ret = self.subreddit.stylesheet.upload(image_name, image_file)
+        log.info(f"Uploaded CSS image (old reddit) {image_name}")
         return ret
 
     @backoff.on_exception(
         backoff.expo,
-        praw.exceptions.APIException,
+        (praw.exceptions.APIException, prawcore.exceptions.ServerError),
         max_time=240,
         jitter=backoff.full_jitter,
     )
@@ -89,10 +92,12 @@ class RedditUploader:
         
         Raises:
             praw.exceptionns.APIException - If any Reddit client or server error.
+            prawcore.exceptions.ServerError - If any Reddit server error.
             prawcore.TooLarge - If image file is over 300kb
         """
-        log.info("Uploading banner image (new reddit)")
+        log.debug("Uploading banner image (new reddit)")
         ret = self.subreddit.stylesheet.upload_banner(image_file)
+        log.info("Uploaded banner image (new reddit)")
         return ret
 
 
