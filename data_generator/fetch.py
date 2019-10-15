@@ -3,6 +3,7 @@ import logging
 
 import backoff
 import httpx
+import san
 
 from aiocache import cached, Cache
 from starlette.applications import Starlette
@@ -21,10 +22,11 @@ logging.basicConfig(
 # Configuration from environment variables or '.env' file.
 config = Config(".env")
 DEBUG = config("DEBUG")
+DEFAULT_SAN_FIELDS = config("DEFAULT_SAN_FIELDS").split(",")
 FIAT = config("FIAT").split(",")
 ERC20 = config("ERC20").split(",")
 OER = config("OER")
-CMC = config("CMC")
+SAN = config("SAN")
 
 app = Starlette(debug=DEBUG)
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -46,17 +48,16 @@ async def get_data():
         dict -- Ticker data, field as key, data as value.
     """
     fx = await get_fx()
-    cmc = await get_cmc()
+    san = await get_san()
     try:
-        eth = cmc["ETH"]
+        eth = san["ETH"]
     except KeyError:
-        logging.warn(f"CMC data failure: {cmc}")
+        logging.warn(f"SAN data failure: {san}")
         return None
+    eth["price_fiat"] = {f: "%.2f" % (float(eth["price_usd"]) * fx[f]) for f in FIAT} 
     data = {
-        "vol": "%.2fM" % (float(eth["quote"]["USD"]["volume_24h"]) / 1000000),
-        "supply": "%.2fM" % (float(eth["circulating_supply"]) / 1000000),
-        "fiat": {f: "%.2f" % (float(eth["quote"]["USD"]["price"]) * fx[f]) for f in FIAT},
-        "erc20": {e: "%.2f" % (float(cmc[e]["quote"]["USD"]["price"])) for e in ERC20},
+        "eth": eth,
+        "erc20": {e: san[e] for e in ERC20},
     }
     log.info(data)
     return data
@@ -79,22 +80,18 @@ async def get_fx():
     return resp.json()["rates"]
 
 
-@cached(ttl=297, cache=Cache.MEMORY, key="get_cmc", namespace="main")
-async def get_cmc(num: int = 300):
-    """Get data from CoinMarketCap API.
-    
-    Keyword Arguments:
-        num {int} -- Limit API return to this many tokens (default: {300})
+@cached(ttl=30, cache=Cache.MEMORY, key="get_san", namespace="main")
+async def get_san(default_san_fields: list = DEFAULT_SAN_FIELDS):
+    """Get data from Santiment API.
     
     Returns:
         dict -- Symbol code as key, data as value.
     """
-    log.info("Fetching live CMC")
-    headers = {"Accepts": "application/json", "X-CMC_PRO_API_KEY": CMC}
-    url = f"https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit={num}"
-    client = httpx.AsyncClient()
-    resp = await client.get(url, headers=headers)
-    if resp.status_code != 200 or resp.json()["status"]["error_code"] != 0:
-        log.warn(f"CMC HTTP {resp.status_code} {resp.json()['status']['error_code']}")
-        return {}
-    return {item["symbol"]: item for item in resp.json()["data"]}
+    log.info("Fetching live SAN")
+    # TODO: enable API key from setting for authenticated requests
+    # san.ApiConfig.api_key = SAN
+    resp = await san.get("projects/all", return_fields=default_san_fields)
+    from pprint import pprint
+    pprint(resp.to_dict('records'))
+    # TODO: add error handling
+    return {item["ticker"]: item for item in resp.to_dict('records')}

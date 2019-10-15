@@ -1,5 +1,6 @@
 DEBUG=False
 OER=
-CMC=
+SAN=
+DEFAULT_SAN_FIELDS=slug,ticker,price_usd,marketcap_usd,price_btc,volume_usd,available_supply
 FIAT=USD,GBP,EUR,CNY,CAD,AUD,RUB
 ERC20=ANT,BAT,DAI,GNO,GNT,LINK,LOOM,MKR,OMG,REP,STORJ,SNT,ZRX
