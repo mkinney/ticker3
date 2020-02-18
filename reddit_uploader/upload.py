@@ -91,7 +91,7 @@ class RedditUploader:
             [type] -- [description]
         
         Raises:
-            praw.exceptionns.APIException - If any Reddit client or server error.
+            praw.exceptions.APIException - If any Reddit client or server error.
             prawcore.exceptions.ServerError - If any Reddit server error.
             prawcore.TooLarge - If image file is over 300kb
         """
@@ -99,6 +99,32 @@ class RedditUploader:
         ret = self.subreddit.stylesheet.upload_banner(image_file)
         log.info("Uploaded banner image (new reddit)")
         return ret
+    
+    def update_image_widget(self, image_file: str):
+        """Updates sidebar image widget(redesign).
+
+        This method automatically handles (via PRAW) updating Reddit so
+        unlike upload_image you do not need to call any touch method.
+        
+        Arguments:
+            image_file {str} -- Local filepath for the image.
+        
+        Returns:
+            [type] -- [description]
+        
+        Raises:
+            praw.exceptions.APIException - If any Reddit client or server error.
+            prawcore.exceptions.ServerError - If any Reddit server error.
+            prawcore.TooLarge - If image file is over 300kb
+        """
+        widgets = self.subreddit.widgets
+        image_dicts = [
+            {
+                'width': 600, 'height': 450, 'linkUrl': '',
+                'url': widgets.mod.upload_image(img_path)
+            } for img_path in [image_file]
+        ]
+        return widgets.mod.update(shortName='Sidebar', data=image_dicts)
 
 
 uploader = RedditUploader()

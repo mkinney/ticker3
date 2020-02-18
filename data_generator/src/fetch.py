@@ -41,6 +41,14 @@ async def ticker(request):
     return templates.TemplateResponse("ticker.html", {"request": request, "data": data})
 
 
+@app.route("/sidebar")
+async def sidebar(request):
+    data = await get_data()
+    if not data:
+        return HTMLResponse(content="<html><body></body</html>", status_code=424)
+    return templates.TemplateResponse("sidebar.html", {"request": request, "data": data})
+
+
 async def get_data():
     """Get data from relevant APIs using internal functions.
     
