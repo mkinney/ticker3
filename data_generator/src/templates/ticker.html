@@ -48,6 +48,7 @@
             <ul class="ticker upper-ticker {% if request.query_params['style'] %} upper-ticker-bg {% endif %}">
                 <li>Volume {{ '%0.2f' % (data.eth.volume_usd|float / 1000000) }}M</li>
                 <li>Supply {{ '%0.2f' % (data.eth.available_supply|float / 1000000) }}M</li>
+                <li><img src="/static/img/crypto/btc.svg"/> BTC {{'%0.8f' % data.eth.price_btc|float}}</li>
                 {% for key, value in data.eth.price_fiat.items() %}<li><img src="/static/img/flags/{{ key[:2]|lower }}.svg"  /> {{ key|safe}} {{ value }}</li>{% endfor %}
             </ul>
             <ul class="ticker lower-ticker {% if request.query_params['style'] %} lower-ticker-bg {% endif %}">

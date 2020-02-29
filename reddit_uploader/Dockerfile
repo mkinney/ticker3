@@ -1,6 +1,4 @@
-FROM alpine:3.10
-RUN apk update \
-  && apk add --no-cache python3
+FROM python:3.8-slim-buster
 COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 COPY upload.py upload.py
