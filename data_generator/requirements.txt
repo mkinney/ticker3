@@ -1,8 +1,7 @@
 aiocache==0.11.1
 aiofiles==0.4.0
-backoff==1.8.0
-httpx==0.7.2
-jinja2==2.10.1
+httpx==0.11.1
+jinja2==2.11.1
 https://github.com/blockchainunchained/sanpy/archive/c57abc4db9ab2d480d88672984d981923359db39.tar.gz
-starlette==0.12.9
+starlette==0.13.2
 uvicorn==0.11.3

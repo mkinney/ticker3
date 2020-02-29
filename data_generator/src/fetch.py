@@ -1,7 +1,6 @@
 import asyncio
 import logging
 
-import backoff
 import httpx
 import san
 
