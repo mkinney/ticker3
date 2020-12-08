@@ -95,8 +95,7 @@ async def get_san(default_san_fields: list = DEFAULT_SAN_FIELDS):
         dict -- Symbol code as key, data as value.
     """
     log.info("Fetching live SAN")
-    # TODO: enable API key from setting for authenticated requests
-    # san.ApiConfig.api_key = SAN
+    san.ApiConfig.api_key = SAN
     resp = await san.get("projects/all", return_fields=default_san_fields)
     from pprint import pprint
     pprint(resp.to_dict('records'))
