@@ -3,6 +3,7 @@ import logging
 
 import httpx
 import san
+from san.error import SanError
 
 from aiocache import cached, Cache
 from starlette.applications import Starlette
@@ -50,7 +51,7 @@ async def sidebar(request):
 
 async def get_data():
     """Get data from relevant APIs using internal functions.
-    
+
     Returns:
         dict -- Ticker data, field as key, data as value.
     """
@@ -61,7 +62,7 @@ async def get_data():
     except KeyError:
         logging.warn(f"SAN data failure: {san}")
         return None
-    eth["price_fiat"] = {f: "%.2f" % (float(eth["price_usd"]) * fx[f]) for f in FIAT} 
+    eth["price_fiat"] = {f: "%.2f" % (float(eth["price_usd"]) * fx[f]) for f in FIAT}
     data = {
         "eth": eth,
         "erc20": {e: san[e] for e in ERC20},
@@ -73,7 +74,7 @@ async def get_data():
 @cached(ttl=3597, cache=Cache.MEMORY, key="get_fx", namespace="main")
 async def get_fx():
     """Get data from OpenExchangeRates API.
-    
+
     Returns:
         dict -- Symbol code as key, data as value.
     """
@@ -90,15 +91,15 @@ async def get_fx():
 @cached(ttl=30, cache=Cache.MEMORY, key="get_san", namespace="main")
 async def get_san(default_san_fields: list = DEFAULT_SAN_FIELDS):
     """Get data from Santiment API.
-    
+
     Returns:
         dict -- Symbol code as key, data as value.
     """
     log.info("Fetching live SAN")
-    # TODO: enable API key from setting for authenticated requests
-    # san.ApiConfig.api_key = SAN
-    resp = await san.get("projects/all", return_fields=default_san_fields)
-    from pprint import pprint
-    pprint(resp.to_dict('records'))
-    # TODO: add error handling
-    return {item["ticker"]: item for item in resp.to_dict('records')}
+    try:
+        resp = san.get("projects/all", return_fields=default_san_fields)
+        from pprint import pprint
+        pprint(resp.to_dict('records'))
+        return {item["ticker"]: item for item in resp.to_dict('records')}
+    except SanError as se:
+        print(se)

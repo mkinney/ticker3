@@ -17,7 +17,7 @@ cp settings/data_generator.example data_generator.secret
 vi data_generator.secret
 ```
 
-Make sure to set `oer` and `cmc`.
+Make sure to set `oer` (which is a valid Open Exchange Rate app_id) and `san` (which is a Santiment api_key).
 
 ### image_generator
 
